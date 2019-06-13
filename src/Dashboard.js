@@ -60,7 +60,8 @@ const useStyles = makeStyles(theme => ({
   },
   chipUser: {
     margin: ".5rem 0 0 .5rem",
-    backgroundColor: "#68C5DB",
+    backgroundColor: "#0197F6",
+    color: 'white',
     height: "28px",
     textAlign: "right",
     flexDirection: "row-reverse",
@@ -93,31 +94,23 @@ export default function Dashboard() {
   // console.log(user, state.channels[activeTopic], 'state on front end')
   const topics = Object.keys(state.channels);
 
-  // const messagesEndRef = React.useRef(null);
-  // const scrollToBottom = () => {
-  //   messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-  // };
-  // React.useEffect(() => sendUserConnected(user));
-  // React.useEffect(() => {
-  //   scrollToBottom();
-  // });
-
-  // const el = React.useRef(null);
-
-  // React.useEffect(() => {
-  //   el.current.scrollIntoView({ behavior: "smooth" });
-  // });
-
-  React.useEffect(() => sendUserConnected(user), []);
-
   //Local state
   // initializing state value of textValue = ''
   // to change textValue, we call changeTextValue
   // calling changeTextValue is like calling setState on textValue
   const [textValue, changeTextValue] = React.useState("");
   const [activeTopic, changeActiveTopic] = React.useState(topics[0]);
+  
+  const messagesEndRef = React.useRef(null);
+  const scrollToBottom = () => {
+    messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+  }
 
-  console.log(user, state.channels[activeTopic], "state on front end");
+
+  React.useEffect(() => sendUserConnected(user), [user]);
+  React.useEffect(scrollToBottom, [state.channels[activeTopic]]);
+
+  console.log(user, "state on front end");
 
   return (
     <div>
@@ -173,7 +166,7 @@ export default function Dashboard() {
                 </React.Fragment>
               );
             })}
-            {/* <div id={"el"} ref={el} /> */}
+             <div ref={messagesEndRef} />
           </div>
           <div className={classes.usersList}>
             <List>
