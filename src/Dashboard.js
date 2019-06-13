@@ -29,17 +29,23 @@ const useStyles = makeStyles(theme => ({
     borderBottom: "1px solid black"
   },
   topicsWindow: {
-    width: "30%",
+    width: "25%",
     height: "300px",
     borderRight: "1px solid grey"
   },
   chatWindow: {
-    width: "70%",
+    width: "50%",
     height: "300px",
     padding: "20px",
-    overflow: 'auto',
+    overflow: "auto"
     // transform: 'rotate(180deg)',
     // direction: 'rtl'
+  },
+  usersList: {
+    width: "25%",
+    height: "300px",
+    borderLeft: "1px solid",
+    overflow: "auto"
   },
   chatBox: {
     width: "85%"
@@ -48,14 +54,32 @@ const useStyles = makeStyles(theme => ({
     width: "15%",
     padding: "1rem"
   },
-  chip: {
-    margin: ".5rem .5rem 0 0 "
+  chipOther: {
+    margin: ".5rem .5rem 0 0 ",
+    height: "28px"
   },
-  msg: {
-    margin: '.25rem 0 .5rem .5rem',
-    textAlign: 'left',
+  chipUser: {
+    margin: ".5rem 0 0 .5rem",
+    backgroundColor: "#68C5DB",
+    height: "28px",
+    textAlign: "right",
+    flexDirection: "row-reverse",
+    marginLeft: "auto"
+  },
+  msgOther: {
+    margin: ".25rem 0 .5rem .5rem",
+    textAlign: "left",
     // transform: 'rotate(180deg)',
-    direction: 'ltr'
+    direction: "ltr"
+  },
+  msgUser: {
+    margin: ".25rem 0 .5rem .5rem",
+    textAlign: "right",
+    // transform: 'rotate(180deg)',
+    direction: "ltr"
+  },
+  listHeader: {
+    backgroundColor: "white"
   }
 }));
 
@@ -63,15 +87,28 @@ export default function Dashboard() {
   const classes = useStyles();
 
   //Context store
-  const { state, sendChatAction, user, sendUserConnected } = React.useContext(Context);
-  console.log(state, 'state on front end')
+  const { state, sendChatAction, user, sendUserConnected } = React.useContext(
+    Context
+  );
+  // console.log(user, state.channels[activeTopic], 'state on front end')
   const topics = Object.keys(state.channels);
-  // console.log(topics, 'topics')
 
-  // console.log(state)
+  // const messagesEndRef = React.useRef(null);
+  // const scrollToBottom = () => {
+  //   messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+  // };
+  // React.useEffect(() => sendUserConnected(user));
+  // React.useEffect(() => {
+  //   scrollToBottom();
+  // });
 
-  React.useEffect(() => sendUserConnected(user ), []);
-    
+  // const el = React.useRef(null);
+
+  // React.useEffect(() => {
+  //   el.current.scrollIntoView({ behavior: "smooth" });
+  // });
+
+  React.useEffect(() => sendUserConnected(user), []);
 
   //Local state
   // initializing state value of textValue = ''
@@ -79,6 +116,8 @@ export default function Dashboard() {
   // calling changeTextValue is like calling setState on textValue
   const [textValue, changeTextValue] = React.useState("");
   const [activeTopic, changeActiveTopic] = React.useState(topics[0]);
+
+  console.log(user, state.channels[activeTopic], "state on front end");
 
   return (
     <div>
@@ -92,7 +131,9 @@ export default function Dashboard() {
         <div className={classes.flex}>
           <div className={classes.topicsWindow}>
             <List>
-              <ListSubheader>Channels</ListSubheader>
+              <ListSubheader className={classes.listHeader}>
+                Channels
+              </ListSubheader>
               {topics.map((topic, index) => (
                 <ListItem
                   onClick={event => changeActiveTopic(event.target.innerText)}
@@ -108,20 +149,47 @@ export default function Dashboard() {
             {state.channels[activeTopic].map((chat, index) => {
               // console.log(state.channels[activeTopic], '&&&&&&')
               return (
-
-              <React.Fragment key={index}>
-                <div className={classes.flex} >
-                  <Chip label={chat.from} className={classes.chip} />
-                </div>
-                <div>
-                  <Typography variant="body1" className={classes.msg}>
-                    {chat.msg}{" "}
-                  </Typography>
-                </div>
-                
-              </React.Fragment>
-              )
+                <React.Fragment key={index}>
+                  <div className={classes.flex}>
+                    <Chip
+                      label={chat.from}
+                      className={
+                        user === chat.from
+                          ? classes.chipUser
+                          : classes.chipOther
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Typography
+                      variant="body1"
+                      className={
+                        user === chat.from ? classes.msgUser : classes.msgOther
+                      }
+                    >
+                      {chat.msg}{" "}
+                    </Typography>
+                  </div>
+                </React.Fragment>
+              );
             })}
+            {/* <div id={"el"} ref={el} /> */}
+          </div>
+          <div className={classes.usersList}>
+            <List>
+              <ListSubheader className={classes.listHeader}>
+                New Users
+              </ListSubheader>
+              {state.users.map((user, index) => (
+                <ListItem
+                  // onClick={event => changeActiveTopic(event.target.innerText)}
+                  key={index}
+                  // button
+                >
+                  <ListItemText primary={user} />
+                </ListItem>
+              ))}
+            </List>
           </div>
         </div>
 
@@ -150,7 +218,6 @@ export default function Dashboard() {
             color="primary"
             className={classes.button}
             onClick={() => {
-              
               sendChatAction({
                 from: user,
                 msg: textValue,

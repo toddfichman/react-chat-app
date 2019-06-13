@@ -46,7 +46,6 @@ const initialState = {
 function reducer(state, action) {
   const { from, msg, topic } = action.payload;
   let users = state.users;
-  let top = state.channels.Sports;
   console.log(state.channels, "activeTopic");
   switch (action.type) {
     case "USER_CONNECTED":
