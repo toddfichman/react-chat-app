@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
     margin: ".5rem .5rem 0 0 "
   },
   msg: {
-    marginTop: ".75rem",
+    margin: '.25rem 0 .5rem .5rem',
     textAlign: 'left',
     // transform: 'rotate(180deg)',
     direction: 'ltr'
@@ -63,13 +63,14 @@ export default function Dashboard() {
   const classes = useStyles();
 
   //Context store
-  const { allChats, sendChatAction, user, sendUserConnected } = React.useContext(Context);
-  // console.log(user, 'user')
-  const topics = Object.keys(allChats);
+  const { state, sendChatAction, user, sendUserConnected } = React.useContext(Context);
+  console.log(state, 'state on front end')
+  const topics = Object.keys(state.channels);
+  // console.log(topics, 'topics')
 
-  // console.log(allChats)
+  // console.log(state)
 
-    React.useEffect(() => sendUserConnected(user), []);
+  React.useEffect(() => sendUserConnected(user ), []);
     
 
   //Local state
@@ -104,7 +105,10 @@ export default function Dashboard() {
             </List>
           </div>
           <div className={classes.chatWindow}>
-            {allChats[activeTopic].map((chat, index) => (
+            {state.channels[activeTopic].map((chat, index) => {
+              // console.log(state.channels[activeTopic], '&&&&&&')
+              return (
+
               <React.Fragment key={index}>
                 <div className={classes.flex} >
                   <Chip label={chat.from} className={classes.chip} />
@@ -116,7 +120,8 @@ export default function Dashboard() {
                 </div>
                 
               </React.Fragment>
-            ))}
+              )
+            })}
           </div>
         </div>
 
@@ -130,8 +135,6 @@ export default function Dashboard() {
             variant="outlined"
             onKeyPress={event => {
               if (event.key === "Enter") {
-                // Do code here
-                // ev.preventDefault();
                 sendChatAction({
                   from: user,
                   msg: textValue,
@@ -147,6 +150,7 @@ export default function Dashboard() {
             color="primary"
             className={classes.button}
             onClick={() => {
+              
               sendChatAction({
                 from: user,
                 msg: textValue,
