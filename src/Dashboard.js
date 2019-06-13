@@ -64,7 +64,7 @@ const useStyles = makeStyles(theme => ({
     color: 'white',
     height: "28px",
     textAlign: "right",
-    flexDirection: "row-reverse",
+    // flexDirection: "row-reverse",
     marginLeft: "auto"
   },
   msgOther: {
@@ -81,6 +81,9 @@ const useStyles = makeStyles(theme => ({
   },
   listHeader: {
     backgroundColor: "white"
+  },
+  activeChannel: {
+    backgroundColor: 'rgba(0, 0, 0, 0.08)'
   }
 }));
 
@@ -132,6 +135,7 @@ export default function Dashboard() {
                   onClick={event => changeActiveTopic(event.target.innerText)}
                   key={index}
                   button
+                  className={activeTopic === topic ? classes.activeChannel : null}
                 >
                   <ListItemText primary={topic} />
                 </ListItem>
