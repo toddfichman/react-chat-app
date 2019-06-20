@@ -44,35 +44,63 @@ const initialState = {
   clientIds: []
 };
 
+function remove(array, key, value) {
+  const index = array.findIndex(obj => obj[key] === value);
+  console.log(index, 'index')
+  return index >= 0 ? [
+      ...array.slice(0, index),
+      ...array.slice(index + 1)
+  ] : array;
+}
+
+function removeByKey(array, params){
+  console.log(array, 'before')
+  array.some(function(item, index) {
+    return (array[index][params.key] === params.value) ? !!(array.splice(index, 1)) : false;
+  });
+  console.log(array, 'after')
+  return array;
+}
+
+
+// users = [{name: 'c', id: 'dsevcesve'}, {name: 'c', id: 'dsevcesve'}, {name: 'c', id: 'dsevcesve'}]
+
 function reducer(state, action) {
-  const { from, msg, topic, user } = action.payload;
-  
+  const { from, msg, topic, user, id } = action.payload;
+  console.log(user, state, '999999')
   let users = state.users;
+  // console.log(id, 'USER_DISCONNECTED')
   // let fromUser = from.name
   // console.log(state.channels, "activeTopic");
   switch (action.type) {
     
     case "USER_CONNECTED":
-      console.log(state, user, 'USER_CONNECTED')
+      // console.log(state, user, 'USER_CONNECTED')
       return {
         ...state,
         users: [...users, user],
         // clientIds: [...clientIds, action.payload.id]
       };
       case "USER_DISCONNECTED":
-      return state.filter(user => user.name !== user.name);
+        console.log(users, 'USER_DISCONNECTED')
+        // users = users.filter(user => user.id !== id);
+        const newArray = users.filter(name => name !== user)
+        console.log(newArray, 'USER_DISCONNECTED')
+        return {
+          ...state,
+          users: newArray
+        }
+      
     case "RECIEVE_MESSAGE":
       // console.log({ from, msg }, '******')
       // console.log(state.channels[topic], '...state.channels[topic]');
-      console.log(from)
-      // let fromName = from.name
+      // console.log(from)
       return {
         ...state,
         channels: {
           ...state.channels, 
           [topic]: [...state.channels[topic], { from, msg }]
         }
-        // [top]: [...state.channels[topic], { from, msg }]
       };
 
     default:
@@ -88,7 +116,7 @@ function sendChatAction(value) {
 }
 
 function sendUserConnected(user, users) {
-  console.log(' sendUserConnected socket.emit in store', user, users);
+  // console.log(' sendUserConnected socket.emit in store', user, users);
   socket.emit("connection message", {user, users});
 }
 
@@ -100,20 +128,28 @@ export default function Store(props) {
   if (!socket) {
     // connect when client starts
     socket = io(":3001");
-    socket.on("connect", function(allClientIds) {
+    socket.on("connect", function() {
       user.id = socket.id
-      console.log( user, '**********')
+      // console.log( user, '**********')
       dispatch({ type: "CONNECTION", payload: {id: socket.id} });
       // console.log({ type: "CONNECTION", payload: {id: socket.id} });
     });
     socket.on("connection message", function({user, users}) {
-      dispatch({ type: "USER_CONNECTED", payload: {user, users} });
+      // user.id = socket.id
       console.log({ type: "USER_CONNECTED", payload: {user, users} });
+      dispatch({ type: "USER_CONNECTED", payload: {user, users} });
     });
     socket.on("chat message", function(message) {
       console.log({type: 'RECIEVE_MESSAGE', payload: message})
       dispatch({ type: "RECIEVE_MESSAGE", payload: message });
       // console.log('socket.on in store');
+    });
+    socket.on("disconnection", function(socketId) {
+      
+      console.log( socketId, '**********')
+      // console.log({ type: "CONNECTION", payload: {id: socket.id} });
+      dispatch({ type: "USER_DISCONNECTED", payload: {id: socketId} });
+      // console.log({ type: "CONNECTION", payload: {id: socket.id} });
     });
 
   }

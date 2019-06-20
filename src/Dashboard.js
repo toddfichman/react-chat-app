@@ -121,7 +121,7 @@ export default function Dashboard() {
 
   React.useEffect(scrollToBottom, [state.channels[activeTopic]]);
 
-  console.log(users, "state on front end");
+  console.log(state, "state on front end");
 
   return (
     <div>
@@ -154,7 +154,6 @@ export default function Dashboard() {
           </div>
           <div className={classes.chatWindow}>
             {state.channels[activeTopic].map((chat, index) => {
-              console.log(chat, user, '&&&&&&')
               return (
                 <React.Fragment key={index}>
                   <div className={classes.flex}>
@@ -188,7 +187,7 @@ export default function Dashboard() {
                 New Users
               </ListSubheader>
               {users.map((mappedUser, index) =>
-                user === mappedUser ? (
+                user.name === mappedUser ? (
                   <ListItem
                     // onClick={event => changeActiveTopic(event.target.innerText)}
                     key={index}
