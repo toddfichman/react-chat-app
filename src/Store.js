@@ -40,19 +40,23 @@ const initialState = {
       { from: faker.internet.userName(), msg: faker.random.words() }
     ]
   },
-  users: []
+  users: [],
+  clientIds: []
 };
 
 function reducer(state, action) {
-  const { from, msg, topic } = action.payload;
+  const { from, msg, topic, user } = action.payload;
   let users = state.users;
-  console.log(state.channels, "activeTopic");
+  // console.log(state.channels, "activeTopic");
   switch (action.type) {
     case "USER_CONNECTED":
       return {
         ...state,
-        users: [...users, action.payload]
+        users: [...users, user],
+        // clientIds: [...clientIds, action.payload.id]
       };
+      case "USER_DISCONNECTED":
+      return state.filter(user => user.name !== user.name);
     case "RECIEVE_MESSAGE":
       // console.log({ from, msg }, '******')
       console.log(state.channels[topic], '...state.channels[topic]');
@@ -78,9 +82,9 @@ function sendChatAction(value) {
   socket.emit("chat message", value);
 }
 
-function sendUserConnected(user) {
-  // console.log(' sendUserConnected socket.emit in store', user);
-  socket.emit("connection message", user);
+function sendUserConnected(user, users) {
+  console.log(' sendUserConnected socket.emit in store', user, users);
+  socket.emit("connection message", {user, users});
 }
 
 const user = faker.internet.userName();
@@ -91,15 +95,21 @@ export default function Store(props) {
   if (!socket) {
     // connect when client starts
     socket = io(":3001");
-    socket.on("connection message", function(user) {
-      dispatch({ type: "USER_CONNECTED", payload: user });
-      console.log({ type: "USER_CONNECTED", payload: user });
+    socket.on("connect", function(allClientIds) {
+      console.log(socket.id, user)
+      dispatch({ type: "CONNECTION", payload: {id: socket.id} });
+      console.log({ type: "CONNECTION", payload: {id: socket.id} });
+    });
+    socket.on("connection message", function({user, users}) {
+      dispatch({ type: "USER_CONNECTED", payload: {user, users} });
+      console.log({ type: "USER_CONNECTED", payload: {user, users} });
     });
     socket.on("chat message", function(message) {
       dispatch({ type: "RECIEVE_MESSAGE", payload: message });
       // console.log({type: 'RECIEVE_MESSAGE', payload: message})
       // console.log('socket.on in store');
     });
+
   }
 
   return (

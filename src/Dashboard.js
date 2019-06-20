@@ -61,7 +61,7 @@ const useStyles = makeStyles(theme => ({
   chipUser: {
     margin: ".5rem 0 0 .5rem",
     backgroundColor: "#0197F6",
-    color: 'white',
+    color: "white",
     height: "28px",
     textAlign: "right",
     // flexDirection: "row-reverse",
@@ -83,7 +83,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: "white"
   },
   activeChannel: {
-    backgroundColor: 'rgba(0, 0, 0, 0.08)'
+    backgroundColor: "rgba(0, 0, 0, 0.08)"
   }
 }));
 
@@ -103,17 +103,22 @@ export default function Dashboard() {
   // calling changeTextValue is like calling setState on textValue
   const [textValue, changeTextValue] = React.useState("");
   const [activeTopic, changeActiveTopic] = React.useState(topics[0]);
-  
+
   const messagesEndRef = React.useRef(null);
   const scrollToBottom = () => {
-    messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
-  }
+    messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+  };
 
-
-  React.useEffect(() => sendUserConnected(user), [user]);
+  React.useEffect(() => {
+    sendUserConnected(user, state.users);
+    return () => {
+      console.log("help");
+    };
+  }, [user]);
+  
   React.useEffect(scrollToBottom, [state.channels[activeTopic]]);
 
-  console.log(user, "state on front end");
+  console.log(state.users, "state on front end");
 
   return (
     <div>
@@ -135,7 +140,9 @@ export default function Dashboard() {
                   onClick={event => changeActiveTopic(event.target.innerText)}
                   key={index}
                   button
-                  className={activeTopic === topic ? classes.activeChannel : null}
+                  className={
+                    activeTopic === topic ? classes.activeChannel : null
+                  }
                 >
                   <ListItemText primary={topic} />
                 </ListItem>
@@ -170,22 +177,32 @@ export default function Dashboard() {
                 </React.Fragment>
               );
             })}
-             <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} />
           </div>
           <div className={classes.usersList}>
             <List>
               <ListSubheader className={classes.listHeader}>
                 New Users
               </ListSubheader>
-              {state.users.map((user, index) => (
-                <ListItem
-                  // onClick={event => changeActiveTopic(event.target.innerText)}
-                  key={index}
-                  // button
-                >
-                  <ListItemText primary={user} />
-                </ListItem>
-              ))}
+              {state.users.map((mappedUser, index) =>
+                user === mappedUser ? (
+                  <ListItem
+                    // onClick={event => changeActiveTopic(event.target.innerText)}
+                    key={index}
+                    // button
+                  >
+                    <ListItemText primary={mappedUser + ` (user)`} />
+                  </ListItem>
+                ) : (
+                  <ListItem
+                    // onClick={event => changeActiveTopic(event.target.innerText)}
+                    key={index}
+                    // button
+                  >
+                    <ListItemText primary={mappedUser} />
+                  </ListItem>
+                )
+              )}
             </List>
           </div>
         </div>
