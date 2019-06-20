@@ -46,10 +46,14 @@ const initialState = {
 
 function reducer(state, action) {
   const { from, msg, topic, user } = action.payload;
+  
   let users = state.users;
+  // let fromUser = from.name
   // console.log(state.channels, "activeTopic");
   switch (action.type) {
+    
     case "USER_CONNECTED":
+      console.log(state, user, 'USER_CONNECTED')
       return {
         ...state,
         users: [...users, user],
@@ -59,8 +63,9 @@ function reducer(state, action) {
       return state.filter(user => user.name !== user.name);
     case "RECIEVE_MESSAGE":
       // console.log({ from, msg }, '******')
-      console.log(state.channels[topic], '...state.channels[topic]');
-
+      // console.log(state.channels[topic], '...state.channels[topic]');
+      console.log(from)
+      // let fromName = from.name
       return {
         ...state,
         channels: {
@@ -87,7 +92,7 @@ function sendUserConnected(user, users) {
   socket.emit("connection message", {user, users});
 }
 
-const user = faker.internet.userName();
+const user = {name: faker.internet.userName(), id: undefined};
 
 export default function Store(props) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
@@ -96,17 +101,18 @@ export default function Store(props) {
     // connect when client starts
     socket = io(":3001");
     socket.on("connect", function(allClientIds) {
-      console.log(socket.id, user)
+      user.id = socket.id
+      console.log( user, '**********')
       dispatch({ type: "CONNECTION", payload: {id: socket.id} });
-      console.log({ type: "CONNECTION", payload: {id: socket.id} });
+      // console.log({ type: "CONNECTION", payload: {id: socket.id} });
     });
     socket.on("connection message", function({user, users}) {
       dispatch({ type: "USER_CONNECTED", payload: {user, users} });
       console.log({ type: "USER_CONNECTED", payload: {user, users} });
     });
     socket.on("chat message", function(message) {
+      console.log({type: 'RECIEVE_MESSAGE', payload: message})
       dispatch({ type: "RECIEVE_MESSAGE", payload: message });
-      // console.log({type: 'RECIEVE_MESSAGE', payload: message})
       // console.log('socket.on in store');
     });
 

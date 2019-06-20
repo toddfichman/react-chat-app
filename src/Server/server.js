@@ -29,7 +29,7 @@ io.on('connection', function(socket){
     var i = allClients.indexOf(socket.id);
     console.log('Got disconnect!', i);
     allClients.splice(i, 1);
-    io.emit('disconnect', msg)
+    io.emit('disconnect')
  });
 });
 

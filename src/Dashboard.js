@@ -96,6 +96,9 @@ export default function Dashboard() {
   );
   // console.log(user, state.channels[activeTopic], 'state on front end')
   const topics = Object.keys(state.channels);
+  const users = state.users
+
+  console.log(state, user, 'hhhhhhhhhhh')
 
   //Local state
   // initializing state value of textValue = ''
@@ -110,15 +113,15 @@ export default function Dashboard() {
   };
 
   React.useEffect(() => {
-    sendUserConnected(user, state.users);
+    sendUserConnected(user.name, users);
     return () => {
       console.log("help");
     };
   }, [user]);
-  
+
   React.useEffect(scrollToBottom, [state.channels[activeTopic]]);
 
-  console.log(state.users, "state on front end");
+  console.log(users, "state on front end");
 
   return (
     <div>
@@ -151,14 +154,14 @@ export default function Dashboard() {
           </div>
           <div className={classes.chatWindow}>
             {state.channels[activeTopic].map((chat, index) => {
-              // console.log(state.channels[activeTopic], '&&&&&&')
+              console.log(chat, user, '&&&&&&')
               return (
                 <React.Fragment key={index}>
                   <div className={classes.flex}>
                     <Chip
                       label={chat.from}
                       className={
-                        user === chat.from
+                        user.name === chat.from
                           ? classes.chipUser
                           : classes.chipOther
                       }
@@ -168,7 +171,7 @@ export default function Dashboard() {
                     <Typography
                       variant="body1"
                       className={
-                        user === chat.from ? classes.msgUser : classes.msgOther
+                        user.name === chat.from ? classes.msgUser : classes.msgOther
                       }
                     >
                       {chat.msg}{" "}
@@ -184,7 +187,7 @@ export default function Dashboard() {
               <ListSubheader className={classes.listHeader}>
                 New Users
               </ListSubheader>
-              {state.users.map((mappedUser, index) =>
+              {users.map((mappedUser, index) =>
                 user === mappedUser ? (
                   <ListItem
                     // onClick={event => changeActiveTopic(event.target.innerText)}
@@ -218,7 +221,7 @@ export default function Dashboard() {
             onKeyPress={event => {
               if (event.key === "Enter") {
                 sendChatAction({
-                  from: user,
+                  from: user.name,
                   msg: textValue,
                   topic: activeTopic
                 });
@@ -233,7 +236,7 @@ export default function Dashboard() {
             className={classes.button}
             onClick={() => {
               sendChatAction({
-                from: user,
+                from: user.name,
                 msg: textValue,
                 topic: activeTopic
               });
